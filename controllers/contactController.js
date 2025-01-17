@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const db = require('../connects/db');
 const Contact = require('../models/contactModel')(mongoose);
+const { ObjectId } = require('mongoose').Types; // Import ObjectId
 
 const getAllContacts = async (req, res) => {
   try {
@@ -17,9 +18,12 @@ const getAllContacts = async (req, res) => {
 
 const getContactById = async (req, res) => {
   try {
+    if (!ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid ID format' });
+    }
     const contact = await db.getDB()
       .collection('contacts')
-      .findOne({ contactId: parseInt(req.params.id) });
+      .findOne({ _id: ObjectId.createFromHexString(req.params.id) });
     res.setHeader('Content-Type', 'application/json');
     res.status(200).json(contact);
   } catch (error) {
@@ -32,7 +36,6 @@ const createContact = async (req, res) => {
     res.status(400).json({ error: 'Contact data is required!' });
     return;
   }
-  console.log(req.body);
   const contact = new Contact(req.body);
   
   try {
@@ -40,12 +43,35 @@ const createContact = async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     res.status(201).json(contact);
   } catch (error) {
-    res.status(400).json({ message: error.toString() });
+    res.status(400).json({ error: error.toString() });
+  }
+}
+
+const updateContact = async (req, res) => {
+  try {
+    if (!ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid ID format' });
+    }
+    await db.getDB()
+      .collection('contacts')
+      .findOneAndUpdate(
+        { _id: ObjectId.createFromHexString(req.params.id) },
+        { $set: req.body },
+        {
+          new: true,
+          upsert: false
+        }
+      );
+    res.setHeader('Content-Type', 'application/json');
+    res.status(200).json({ message: 'Contact updated successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.toString() });
   }
 }
 
 module.exports = {
   getAllContacts,
   getContactById,
-  createContact
+  createContact,
+  updateContact
 };

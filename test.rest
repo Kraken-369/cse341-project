@@ -1,0 +1,45 @@
+### Get all contacts
+GET http://localhost:8080/contact
+Content-Type: application/json
+
+###
+
+### Get contact by ID
+GET http://localhost:8080/contact/6789a0b36e0d58b71ee788d9
+Content-Type: application/json
+
+###
+
+### Create a new contact
+POST http://localhost:8080/contact
+Content-Type: application/json
+
+{
+  "firstName": "Delete",
+  "lastName": "Me",
+  "email": "delete@email.com",
+  "favoriteColor": "purple",
+  "birthday": "2009-03-05"
+}
+
+###
+
+### Update a contact
+PUT http://localhost:8080/contact/67831d316ebd58199ee2f141
+Content-Type: application/json
+
+{
+  "lastName": "Molleda Lopera"
+}
+
+###
+
+### Delete a contact
+DELETE http://localhost:8080/contact/678adec6dae6f40a7a1633a8
+Content-Type: application/json
+
+###
+
+### Attempt to delete a non-existent contact
+DELETE http://localhost:8080/contact/invalid_id
+Content-Type: application/json
